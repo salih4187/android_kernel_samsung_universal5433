@@ -151,9 +151,9 @@ void ping_unhash(struct sock *sk)
 {
 	struct inet_sock *isk = inet_sk(sk);
 
-	pr_debug("ping_unhash(isk=%p,isk->num=%u)\n", isk, isk->inet_num);
+	pr_debug("ping_v4_unhash(isk=%p,isk->num=%u)\n", isk, isk->inet_num);
 	write_lock_bh(&ping_table.lock);
-	if (sk_hashed(sk)) {		
+	if (sk_hashed(sk)) {
 		hlist_nulls_del(&sk->sk_nulls_node);
 		sk_nulls_node_init(&sk->sk_nulls_node);
 		sock_put(sk);
@@ -163,7 +163,6 @@ void ping_unhash(struct sock *sk)
 	}
 	write_unlock_bh(&ping_table.lock);
 }
-EXPORT_SYMBOL_GPL(ping_unhash);
 
 static struct sock *ping_lookup(struct net *net, struct sk_buff *skb, u16 ident)
 {
@@ -636,6 +635,8 @@ static int ping_v4_push_pending_frames(struct sock *sk, struct pingfakehdr *pfh,
 {
 	struct sk_buff *skb = skb_peek(&sk->sk_write_queue);
 
+	if (!skb)
+		return 0;
 	pfh->wcheck = csum_partial((char *)&pfh->icmph,
 		sizeof(struct icmphdr), pfh->wcheck);
 	pfh->icmph.checksum = csum_fold(pfh->wcheck);
