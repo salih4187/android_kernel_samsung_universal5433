@@ -63,12 +63,6 @@ enum hmt_mode {
 	HMT_MDNIE_MAX,
 };
 
-enum NIGHT_MODE {
-	NIGHT_MODE_OFF,
-	NIGHT_MODE_ON,
-	NIGHT_MODE_MAX,
-};
-
 struct mdnie_seq_info {
 	mdnie_t *cmd;
 	unsigned int len;
@@ -89,11 +83,6 @@ struct mdnie_scr_info {
 	u32 white_b;
 };
 
-struct mdnie_night_info {
-	u32 max_w;
-	u32 max_h;
-};
-
 struct mdnie_tune {
 	struct mdnie_table	*bypass_table;
 	struct mdnie_table	*accessibility_table;
@@ -101,12 +90,9 @@ struct mdnie_tune {
 	struct mdnie_table	*hmt_table;
 	struct mdnie_table	(*main_table)[MODE_MAX];
 	struct mdnie_table	*dmb_table;
-	struct mdnie_table	*night_table;
 
 	struct mdnie_scr_info	*scr_info;
-	struct mdnie_night_info	*night_info;
 	unsigned char **coordinate_table;
-	unsigned char *night_mode_table;
 	int (*get_hbm_index)(int);
 	int (*color_offset[])(int, int);
 };
@@ -134,7 +120,6 @@ struct mdnie_info {
 	enum BYPASS		bypass;
 	enum HBM		hbm;
 	enum hmt_mode		hmt_mode;
-	enum NIGHT_MODE		night_mode;
 
 	unsigned int		tuning;
 	unsigned int		accessibility;
@@ -151,7 +136,6 @@ struct mdnie_info {
 	unsigned int white_r;
 	unsigned int white_g;
 	unsigned int white_b;
-	unsigned int night_mode_level;
 	struct mdnie_table table_buffer;
 	mdnie_t sequence_buffer[256];
 };
