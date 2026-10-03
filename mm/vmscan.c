@@ -1806,8 +1806,7 @@ static void get_scan_count(struct lruvec *lruvec, struct scan_control *sc,
 	 * There is enough inactive page cache, do not reclaim
 	 * anything from the anonymous working set right now.
 	 */
-	if (!IS_ENABLED(CONFIG_BALANCE_ANON_FILE_RECLAIM) &&
-		!inactive_file_is_low(lruvec)) {
+	if (!inactive_file_is_low(lruvec)) {
 		scan_balance = SCAN_FILE;
 		goto out;
 	}
@@ -2211,7 +2210,6 @@ static bool zone_reclaimable(struct zone *zone)
 {
 	return zone->pages_scanned < zone_reclaimable_pages(zone) * 6;
 }
-#ifndef CONFIG_ZOOM_KILLER
 /* All zones in zonelist are unreclaimable? */
 static bool all_unreclaimable(struct zonelist *zonelist,
 		struct scan_control *sc)
@@ -2231,7 +2229,6 @@ static bool all_unreclaimable(struct zonelist *zonelist,
 
 	return true;
 }
-#endif
 /*
  * This is the main entry point to direct page reclaim.
  *
@@ -2345,11 +2342,9 @@ out:
 	if (aborted_reclaim)
 		return 1;
 
-#ifndef CONFIG_ZOOM_KILLER
 	/* top priority shrink_zones still had more to do? don't OOM, then */
 	if (global_reclaim(sc) && !all_unreclaimable(zonelist, sc))
 		return 1;
-#endif
 
 	return 0;
 }
@@ -2489,16 +2484,8 @@ unsigned long try_to_free_pages(struct zonelist *zonelist, int order,
 		.may_writepage = !laptop_mode,
 		.nr_to_reclaim = SWAP_CLUSTER_MAX,
 		.may_unmap = 1,
-#ifdef CONFIG_DIRECT_RECLAIM_FILE_PAGES_ONLY
-		.may_swap = 0,
-#else
 		.may_swap = 1,
-#endif
-#ifdef CONFIG_ZSWAP
-		.swappiness = vm_swappiness / 2,
-#else
 		.swappiness = vm_swappiness,
-#endif
 		.order = order,
 		.priority = DEF_PRIORITY,
 		.target_mem_cgroup = NULL,
@@ -2701,11 +2688,7 @@ static bool pgdat_balanced(pg_data_t *pgdat, int order, int classzone_idx)
 	}
 
 	if (order)
-#ifdef CONFIG_TIGHT_PGDAT_BALANCE
-		return balanced_pages >= (managed_pages >> 1);
-#else
 		return balanced_pages >= (managed_pages >> 2);
-#endif
 	else
 		return true;
 }

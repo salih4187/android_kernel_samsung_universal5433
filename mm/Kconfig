@@ -254,10 +254,6 @@ config MIGRATION
 	  pages as migration can relocate pages to satisfy a huge page
 	  allocation instead of reclaiming.
 
-config SEC_SLOWPATH
-	bool "slowpath allocation"
-	def_bool n
-
 config PHYS_ADDR_T_64BIT
 	def_bool 64BIT || ARCH_PHYS_ADDR_T_64BIT
 
@@ -544,35 +540,14 @@ config ZSWAP_ENABLE_WRITEBACK
 	depends on ZSWAP
 	default n
 
-config DIRECT_RECLAIM_FILE_PAGES_ONLY
-	bool "Reclaim file pages only on direct reclaim path"
-	depends on ZSWAP
-	default n
-
 config INCREASE_MAXIMUM_SWAPPINESS
 	bool "Allow swappiness to be set up to 200"
-	depends on ZSWAP
-	default n
-
-config FIX_INACTIVE_RATIO
-	bool "Fix active:inactive anon ratio to 1:1"
-	depends on ZSWAP
 	default n
 
 config TIGHT_PGDAT_BALANCE
 	bool "Set more tight balanced condition to kswapd"
 	depends on ZSWAP
 	default n
-
-config SWAP_ENABLE_READAHEAD
-	bool "Enable readahead on page swap in"
-	depends on SWAP
-	default y
-	help
-	  When a page fault occurs, adjacent pages of SWAP_CLUSTER_MAX are
-	  also paged in expecting those pages will be used in near future.
-	  This behaviour is good at disk-based system, but not on in-memory
-	  compression (e.g. zram).
 
 config USE_USER_ACCESSIBLE_TIMERS
 	bool "Enables timers accessible from userspace"
@@ -594,44 +569,6 @@ config ZBUD
 	  page.  While this design limits storage density, it has simple and
 	  deterministic reclaim properties that make it preferable to a higher
 	  density approach when reclaim will be used.
-
-config BALANCE_ANON_FILE_RECLAIM
-	bool "During reclaim treat anon and file backed pages equally"
-	depends on SWAP
-	default n
-	help
-	  When performing memory reclaim treat anonymous and file backed pages
-	  equally.
-	  Swapping anonymous pages out to memory can be efficient enough to justify
-	  treating anonymous and file backed pages equally.
-
-config ZOOM_KILLER
-	bool "Samsung extension. Selet victim who has largest lowmem with same score"
-	depends on !OOM_KILLER_TIMEOUT && !SEC_OOM_KILLER
-	default y
-	help
-	  When OOM select victim, choose process which has largest lowmem
-
-config ACCURATE_FREE_PAGES_CHECK
-	bool "Samsung WA: prevent process overkill"
-		default n
-	help
-		zone_watermark_ok function called for checking zone free page
-		status at page alloc/free. In this function, zone NR_FREE_PAGES
-		state and free_area[o].nr_free is used for determin free space.
-		But, two vaules sometimes imbalance cause by zone state update
-		buffering feature. this patch fix free_pages to actual buddy sysem
-		value.
-
-config OOM_SCAN_WA_PREVENT_WRONG_SEARCH
-    bool "Samsung WA: prevent to search the wrong thread"
-	default n
-	help
-	  When OOM is frequently called, e.g. OOM is called within 500ms,
-	  a exiting thread can be wrongly selected. In order to prevent
-	  this malfunction, the threads are skipped to be scaned, which are
-	  linked to the process that is exiting, "task->exit_state" is
-	  EXIT_ZOMBIE or EXIT_DEAD.
 
 config SDP_CACHE_CLEANUP
 	bool "SDP requirement. cache cleanup"
